@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<title>joe lepper: making stuff on the Internet</title>
+    <style>
+      circle {
+        transition: fill .2s ease;
+      }
+      video, canvas {
+        display: none;
+      }
+      body {
+        background-color: #333;
+        font-family: helvetica;
+      }
+      .container {
+        color: #ccc;
+        position: absolute;
+        margin: 20px;
+        background-color: rgba(255,255,255,0.25);
+        border: solid 1px;
+        padding: 0 15px 10px 25px;
+      }
+      .title {
+        font-size: 24px;
+        margin-bottom: 0;
+        color: #efefef;
+      }
+      .subtitle {
+        font-size: 14px;
+        margin-top: 0;
+        font-weight: normal;
+      }
+      ul {
+        margin: 0;
+        margin-top:15px;
+        margin-right: 20px;
+      }
+      li {
+        margin-top:5px;
+        margin-left:5px;
+        list-style-type: none;
+      }
+      a {
+        margin-top:1px;
+        margin-left:12px;
+        text-decoration: none;
+        color: #ccc;
+        outline: 0;
+        float:right;
+      }
+      a:hover {
+        color:#eee;
+      }
+      .contact-container {
+        margin-left: 0px;
+        float: right;
+      }
+    </style>
+	</head>
+	<body>
+    <div class="container">
+      <h1 class="title">joe lepper</h1>
+      <h2 class="subtitle">making stuff on the Internet</h2>
+      <ul class="contact-container">
+        <li><a href="http://twitter.com/josephlepper">@josephlepper</a></li>
+        <li><a href="http://github.com/joeLepper">github</a></li>
+        <li><a href="http://github.com/joeLepper/mirror_portfolio">source</a></li>
+      </ul>
+    </div>
+		<div id="dots" ></div>
+    <video autoplay="true"></video>
+    <canvas width="64" height="36"></canvas>
+		<script type="text/javascript" src="bundle.js"></script>
+	</body>
+</html>
