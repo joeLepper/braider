@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "NODE_ENV=production webpack -p",
+    "staging": "COLS=128 ROWS=72 npm run build && COLS=128 ROWS=72 NODE_ENV=staging npm start",
     "prod": "COLS=128 ROWS=72 npm run build && COLS=128 ROWS=72 NODE_ENV=production npm start"
   },
   "author": "Joe Lepper",
@@ -20,6 +21,7 @@
     "babel-preset-react": "^6.0.15",
     "babel-register": "^6.4.3",
     "copy-webpack-plugin": "^0.3.3",
+    "express": "^4.13.4",
     "react": "^0.14.1",
     "react-dom": "^0.14.6",
     "react-redux": "^4.0.0",
