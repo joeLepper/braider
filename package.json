@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "build": "NODE_ENV=production webpack -p",
-    "staging": "COLS=128 ROWS=72 npm run build && COLS=128 ROWS=72 NODE_ENV=staging node server.js",
-    "prod": "COLS=128 ROWS=72 npm run build && COLS=128 ROWS=72 NODE_ENV=production node server.js"
+    "staging": "COLS=128 npm run build && COLS=128 NODE_ENV=staging node server.js",
+    "prod": "COLS=128 npm run build && COLS=128 NODE_ENV=production node server.js"
   },
   "author": "Joe Lepper",
   "license": "MIT",

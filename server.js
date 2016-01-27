@@ -15,7 +15,6 @@ var __PROD__ = process.env.NODE_ENV === 'production'
 var __STAGING__ = process.env.NODE_ENV === 'staging'
 var __DEV__ = !__PROD__ && !__STAGING__
 var __COLS__ = Math.min(process.env.COLS, 128)
-var __ROWS__ = Math.min(process.env.ROWS, 72)
 
 var lex = __PROD__ ? require('letsencrypt-express') : require('letsencrypt-express').testing()
 
