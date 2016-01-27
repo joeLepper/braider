@@ -1,5 +1,6 @@
 require("babel-register")
 
+var lex = require('letsencrypt-express').testing()
 var webpack = require('webpack')
 var express = require('express')
 var app = express()
@@ -26,7 +27,7 @@ else {
   app.use(express.static('dist'))
 }
 
-app.get('/', (req, res) => {
+app.get('/', function (req, res) {
   var cols = Math.min(req.query.cols || __COLS__, 128)
   var rows = Math.min(req.query.rows || __ROWS__, 72)
 
@@ -34,7 +35,17 @@ app.get('/', (req, res) => {
   res.status(200).send(ReactDOM.renderToStaticMarkup(page))
 })
 
-app.listen(3000, (err) => {
+lex.create({
+  configDir: '/etc/letsencrypt',
+  onRequest: app,
+  approveRegistration: function (host, cb) {
+    cb(null, {
+      domains: [host],
+      email: process.env.EMAIL,
+      agreeTos: true
+    })
+  }
+}).listen([port], [443], function (err) {
   if (err) console.log(err)
-  else console.log('Live at localhost:3000')
+  else console.log('Live at ' + port)
 })
