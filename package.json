@@ -22,6 +22,7 @@
     "babel-register": "^6.4.3",
     "copy-webpack-plugin": "^0.3.3",
     "express": "^4.13.4",
+    "forever": "^0.15.1",
     "letsencrypt-express": "^1.0.6",
     "react": "^0.14.1",
     "react-dom": "^0.14.6",

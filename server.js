@@ -1,6 +1,5 @@
 require("babel-register")
 
-var lex = require('letsencrypt-express').testing()
 var webpack = require('webpack')
 var express = require('express')
 var app = express()
@@ -18,6 +17,8 @@ var __DEV__ = !__PROD__ && !__STAGING__
 var __COLS__ = Math.min(process.env.COLS, 128)
 var __ROWS__ = Math.min(process.env.ROWS, 72)
 
+var lex = __PROD__ ? require('letsencrypt-express') : require('letsencrypt-express').testing()
+
 if (__DEV__) {
   var compiler = webpack(config)
   app.use(webpackDevMiddleware(compiler, { stats: { colors: true } }))
@@ -27,9 +28,19 @@ else {
   app.use(express.static('dist'))
 }
 
+var validCols = [16, 32, 64, 128]
+
+function closest (candidate) {
+  var currentClosest = validCols[0]
+  validCols.forEach(function (val) {
+    if (Math.abs(candidate - val) < Math.abs(candidate - currentClosest)) currentClosest = val
+  })
+  return currentClosest
+}
+
 app.get('/', function (req, res) {
-  var cols = Math.min(req.query.cols || __COLS__, 128)
-  var rows = Math.min(req.query.rows || __ROWS__, 72)
+  var cols = closest(req.query.cols || __COLS__)
+  var rows = cols / 16 * 9
 
   var page = React.createElement(Page, { cols: cols, rows: rows })
   res.status(200).send(ReactDOM.renderToStaticMarkup(page))
