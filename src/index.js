@@ -1,3 +1,4 @@
+if (location.protocol !== 'https:') location = 'https://joelepper.com' + location.search
 window.addEventListener('load', () => {
   console.log('And when Trout looked through them to see what was going on in the other universe, he saw a red-eyed, filthy old creature who was barefoot, who had his pants rolled up to his knees.')
   let raf = requestAnimationFrame
