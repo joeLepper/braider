@@ -4,6 +4,7 @@ export class Page extends React.Component {
   render () {
     let {cols, rows} = this.props
     let dots = []
+    let brand = []
 
     for (var i = 0; i < rows; i++) {
       let column = []
@@ -16,6 +17,23 @@ export class Page extends React.Component {
       }
       dots.push(<g key={`row-${i}`} className={`row-${i}`}>{column}</g>)
     }
+    if (this.props.brand) brand = (
+      <div className="container">
+        <h1 className="title">joe lepper</h1>
+        <h2 className="subtitle">making stuff on the Internet</h2>
+        <ul>
+          <li>
+            <a href="http://twitter.com/josephlepper">@josephlepper</a>
+          </li>
+          <li>
+            <a href="http://github.com/joeLepper">github</a>
+          </li>
+          <li>
+            <a href="http://github.com/joeLepper/dot-portfolio">source</a>
+          </li>
+        </ul>
+      </div>
+    )
 
     return (<html>
       <head>
@@ -23,21 +41,7 @@ export class Page extends React.Component {
         <link rel="stylesheet" type="text/css" href="style.css" />
       </head>
       <body>
-        <div className="container">
-          <h1 className="title">joe lepper</h1>
-          <h2 className="subtitle">making stuff on the Internet</h2>
-          <ul>
-            <li>
-              <a href="http://twitter.com/josephlepper">@josephlepper</a>
-            </li>
-            <li>
-              <a href="http://github.com/joeLepper">github</a>
-            </li>
-            <li>
-              <a href="http://github.com/joeLepper/dot-portfolio">source</a>
-            </li>
-          </ul>
-        </div>
+        {brand}
         <div id="dots"></div>
         <svg height="100" width="100">{dots}</svg>
         <video className="invisible" autoPlay="true"></video>
