@@ -29,16 +29,16 @@ else {
 
 var validCols = [16, 32, 64, 128]
 
-function closest (candidate) {
-  var currentClosest = validCols[0]
-  validCols.forEach(function (val) {
+function closest (candidate, arr) {
+  var currentClosest = arr[0]
+  arr.forEach(function (val) {
     if (Math.abs(candidate - val) < Math.abs(candidate - currentClosest)) currentClosest = val
   })
   return currentClosest
 }
 
 app.get('/', function (req, res) {
-  var cols = closest(req.query.cols || __COLS__)
+  var cols = closest(req.query.cols || __COLS__, validCols)
   var rows = cols / 16 * 9
   var brand = true
 
