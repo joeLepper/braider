@@ -62,7 +62,7 @@ lex.create({
       agreeTos: true
     })
   }
-}).listen([port], [443], function (err) {
+}).listen([port], [__PROD__ ? 443 : 3001], function (err) {
   if (err) console.log(err)
   else console.log('Live at ' + port)
 })
