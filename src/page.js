@@ -42,9 +42,8 @@ export class Page extends React.Component {
       </head>
       <body>
         {brand}
-        <div id="dots"></div>
         <svg height="100" width="100">{dots}</svg>
-        <video className="invisible" autoPlay="true"></video>
+        <video muted="true" className="invisible" autoPlay="true"></video>
         <canvas className="invisible" width={cols} height={rows}></canvas>
         <script type="text/javascript">window.__cols = {cols};window.__rows = {rows}</script>
         <script type="text/javascript" src="bundle.js"></script>
