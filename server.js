@@ -40,12 +40,14 @@ function closest (candidate) {
 app.get('/', function (req, res) {
   var cols = closest(req.query.cols || __COLS__)
   var rows = cols / 16 * 9
-  var brand = req.query.brand || true
+  var brand = true
+
+  if (typeof req.query.brand !== 'undefined') brand = +req.query.brand
 
   var page = React.createElement(Page, {
     cols: cols,
     rows: rows,
-    brand: brand
+    brand: brand,
   })
   res.status(200).send(ReactDOM.renderToStaticMarkup(page))
 })
