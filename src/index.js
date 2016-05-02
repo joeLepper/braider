@@ -1,6 +1,6 @@
 import Viz from './viz'
 
-const stringThickness = Math.ceil(window.innerWidth / 69)
+const stringThickness = 32
 const stringSpacing = stringThickness * 1.75
 const spacerGap = stringThickness / 4
 const rowHeight = stringSpacing * 2 - stringThickness

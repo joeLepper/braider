@@ -3,12 +3,12 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const __DEV__ = ['production', 'test'].indexOf(process.env.NODE_ENV) === -1
 
-module.exports = {
+config = {
   devtool: 'source-map',
   entry: ['./src/index'],
   output: {
     path: __dirname + '/dist',
-    filename: 'bundle.js'
+    filename: 'viz.js'
   },
   plugins: [
     new webpack.NoErrorsPlugin(),
@@ -25,3 +25,5 @@ module.exports = {
     ]
   }
 }
+
+module.exports = config

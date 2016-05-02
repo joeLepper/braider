@@ -4,7 +4,8 @@
   "description": "Generative braids.",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node server.js"
+    "start": "babel-node server.js",
+    "deploy": "NODE_ENV=production ./node_modules/.bin/webpack -p && ./node_modules/.bin/surge -p ./dist -d braider.surge.sh"
   },
   "author": "Joe Lepper",
   "license": "MIT",
@@ -25,6 +26,7 @@
     "letsencrypt-express": "^1.0.6",
     "react": "^0.14.1",
     "react-dom": "^0.14.6",
+    "surge": "^0.17.7",
     "webpack": "^1.12.2",
     "webpack-dev-middleware": "^1.5.0"
   },

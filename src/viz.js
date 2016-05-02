@@ -4,10 +4,10 @@ export default class Viz {
     displayCanvas.height = window.innerHeight
     displayCanvas.width = window.innerWidth
 
+    this.displayCanvas = displayCanvas
     this.displayWidth = displayCanvas.width
     this.displayHeight = displayCanvas.height
     this.context = displayCanvas.getContext('2d')
-    this.context.clearRect(0, 0, this.displayWidth, this.displayHeight)
 
     this.rowHeight = config.rowHeight
     this.stringSpacing = config.stringSpacing
@@ -18,21 +18,7 @@ export default class Viz {
     this.spacerGap = config.spacerGap
     this.controlYFactor = (1 - this.stringSpacing / this.rowHeight * Math.tan(this.crossingAngle))
     this.margin = this.stringThickness + 1
-    const numStrings = (1 + Math.floor((this.displayWidth - this.stringThickness) / this.stringSpacing))
-
-    this.numStrings = numStrings % 2 ? numStrings - 1 : numStrings
-    this.strings = this.initialColors(this.numStrings / 2).map((color, i) => { return { color, cross: i % 2 } })
   }
-
-  // initialColors = (numStrings) => {
-  //   const colors = ['#F00', '#FF0', '#F0F', '#0F0', '#0FF', '#FFF', '#00F', '#F09', '#F90', '#09F', '#0F9', '#9F0']
-  //   const result = []
-  //   for (let i = 0; i < numStrings; i++) {
-  //     const idx = Math.floor(Math.random() * (colors.length))
-  //     result.push(colors[idx])
-  //   }
-  //   return result;
-  // }
 
   initialColors = (numStrings) => {
     let i,r,g,b
@@ -50,7 +36,7 @@ export default class Viz {
   }
 
   fillRow = (y) => {
-    const { numStrings, margin, stringSpacing, crossingProbability, colors, drawString, drawCrossing, strings } = this
+    const { numStrings, margin, stringSpacing, crossingProbability, drawString, drawCrossing, strings } = this
     const nextStrings = []
 
     let stringNumber = 0
@@ -195,6 +181,18 @@ export default class Viz {
   }
 
   render = () => {
+    this.displayCanvas.height = window.innerHeight
+    this.displayCanvas.width = window.innerWidth
+    this.displayWidth = this.displayCanvas.width
+    this.displayHeight = this.displayCanvas.height
+
+
+    const numStrings = (1 + Math.floor((this.displayWidth - this.stringThickness) / this.stringSpacing))
+
+    this.numStrings = numStrings % 2 ? numStrings - 1 : numStrings
+    this.strings = this.initialColors(this.numStrings / 2).map((color, i) => { return { color, cross: i % 2 } })
+
+    this.context.clearRect(0, 0, this.displayWidth, this.displayHeight)
     let i = Math.floor(this.displayHeight / this.rowHeight) + 1
     while (--i > -1) { this.strings = this.fillRow(i * this.rowHeight) }
   }
