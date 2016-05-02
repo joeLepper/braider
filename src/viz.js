@@ -1,32 +1,38 @@
-const generatorsInLastRow = []
-
 export default class Viz {
   constructor (config) {
     const displayCanvas = document.querySelector(config.selector)
-
     displayCanvas.height = window.innerHeight
     displayCanvas.width = window.innerWidth
 
     this.displayWidth = displayCanvas.width
     this.displayHeight = displayCanvas.height
-
     this.context = displayCanvas.getContext('2d')
+    this.context.clearRect(0, 0, this.displayWidth, this.displayHeight)
 
     this.rowHeight = config.rowHeight
     this.stringSpacing = config.stringSpacing
     this.stringThickness = config.stringThickness
     this.bgColor = config.bgColor
     this.crossingProbability = config.crossingProbability
-    this.positiveProbability = config.positiveSwitch
     this.crossingAngle = config.crossingAngle
     this.spacerGap = config.spacerGap
-
     this.controlYFactor = (1 - this.stringSpacing / this.rowHeight * Math.tan(this.crossingAngle))
     this.margin = this.stringThickness + 1
-    this.numStrings = 1 + Math.floor((this.displayWidth - this.stringThickness) / this.stringSpacing)
+    const numStrings = (1 + Math.floor((this.displayWidth - this.stringThickness) / this.stringSpacing))
 
-    this.colors = this.initialColors(this.numStrings)
+    this.numStrings = numStrings % 2 ? numStrings - 1 : numStrings
+    this.strings = this.initialColors(this.numStrings / 2).map((color, i) => { return { color, cross: i % 2 } })
   }
+
+  // initialColors = (numStrings) => {
+  //   const colors = ['#F00', '#FF0', '#F0F', '#0F0', '#0FF', '#FFF', '#00F', '#F09', '#F90', '#09F', '#0F9', '#9F0']
+  //   const result = []
+  //   for (let i = 0; i < numStrings; i++) {
+  //     const idx = Math.floor(Math.random() * (colors.length))
+  //     result.push(colors[idx])
+  //   }
+  //   return result;
+  // }
 
   initialColors = (numStrings) => {
     let i,r,g,b
@@ -34,8 +40,9 @@ export default class Viz {
     for (i = 0; i < numStrings; i++) {
 
       r = 64 + Math.floor(Math.random() * 192)
-      g = 64 + Math.floor(Math.random() * 192)
-      b = 64 + Math.floor(Math.random() * 192)
+      g = 44 + Math.floor(Math.random() * 212)
+      b = 192
+      // b = 64 + Math.floor(Math.random() * 192)
 
       result.push(`rgb(${r},${g},${b})`)
     }
@@ -43,54 +50,56 @@ export default class Viz {
   }
 
   fillRow = (y) => {
-    const {
-      numStrings,
-      margin,
-      stringSpacing,
-      crossingProbability,
-      colors,
-      positiveProbability,
-      drawString,
-      drawCrossing,
-    } = this
+    const { numStrings, margin, stringSpacing, crossingProbability, colors, drawString, drawCrossing, strings } = this
+    const nextStrings = []
 
     let stringNumber = 0
-    let temp
 
-    const nextColors = []
-
-    while (stringNumber < numStrings - 1) {
+    while (stringNumber < numStrings / 2) {
       const x = margin + stringNumber * stringSpacing
       if (Math.random() < crossingProbability) {
-        const positiveSwitch = (Math.random() < positiveProbability)
-        const positive = (positiveSwitch && (generatorsInLastRow[stringNumber] != -1)) ||
-                ((!positiveSwitch) && (generatorsInLastRow[stringNumber] == 1))
-
-        const config = {
+        const positive = strings[stringNumber].cross
+        const crossingConfig = {
           x,
           y,
-          color0: colors[stringNumber],
-          color1: colors[stringNumber+1],
+          color0: strings[stringNumber].color,
+          color1: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].color : strings[stringNumber + 1].color,
           positive,
         }
-        drawCrossing(config)
-        generatorsInLastRow[stringNumber] = positive ? 1 : -1
-        generatorsInLastRow[stringNumber+1] = 0
+        const partnerCrossingConfig = {
+          x: margin + (numStrings - 2 - stringNumber) * stringSpacing,
+          y,
+          color0: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].color : strings[stringNumber + 1].color,
+          color1: strings[stringNumber].color,
+          positive,
+        }
+        drawCrossing(crossingConfig)
+        nextStrings[stringNumber] = {
+          cross: strings[stringNumber].cross,
+          color: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].color : strings[stringNumber + 1].color,
+        }
 
-        // set colors
-        nextColors[stringNumber] = colors[stringNumber + 1]
-        nextColors[stringNumber + 1] = colors[stringNumber]
+        drawCrossing(partnerCrossingConfig)
+        nextStrings[stringNumber + 1] = {
+          cross: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].cross : strings[stringNumber + 1].cross,
+          color: strings[stringNumber].color
+        }
 
-        //advance
+        //advance and skip the next string
         stringNumber += 2
       }
       else {
         drawString({
           x,
           y,
-          color: colors[stringNumber],
+          color: strings[stringNumber].color,
         })
-        nextColors[stringNumber] = colors[stringNumber]
+        drawString({
+          x: margin + (numStrings - 1 - stringNumber) * stringSpacing,
+          y,
+          color: strings[stringNumber].color,
+        })
+        nextStrings[stringNumber] = strings[stringNumber]
         stringNumber += 1
       }
     }
@@ -98,11 +107,9 @@ export default class Viz {
     if (stringNumber == numStrings - 1) drawString({
       x: margin + stringNumber * stringSpacing,
       y,
-      color: colors[stringNumber],
+      color: strings[stringNumber].color,
     })
-    nextColors[stringNumber] = colors[stringNumber]
-
-    return nextColors
+    return nextStrings
   }
 
   drawSpacer = (config) => {
@@ -141,21 +148,8 @@ export default class Viz {
   }
 
   drawCrossing = (config) => {
-    const { context } = this
-    const {
-      rowHeight,
-      stringSpacing,
-      controlYFactor,
-      drawLeftCross,
-      drawRightCross,
-    } = this
-    const {
-      x,
-      y,
-      color0,
-      color1,
-      positive,
-    } = config
+    const { rowHeight, stringSpacing, controlYFactor, drawLeftCross, drawRightCross, context } = this
+    const { x, y, color0, color1, positive } = config
     context.lineCap = "butt"
 
     const left = {
@@ -201,9 +195,7 @@ export default class Viz {
   }
 
   render = () => {
-    for (let k = 0; k < this.numStrings - 1; k++) { generatorsInLastRow.push(0) }
-
-    let i = Math.floor(this.displayHeight / this.rowHeight)
-    while (--i > -1) { this.colors = this.fillRow(i * this.rowHeight) }
+    let i = Math.floor(this.displayHeight / this.rowHeight) + 1
+    while (--i > -1) { this.strings = this.fillRow(i * this.rowHeight) }
   }
 }

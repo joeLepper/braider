@@ -1,6 +1,6 @@
 import Viz from './viz'
 
-const stringThickness = 16
+const stringThickness = Math.ceil(window.innerWidth / 69)
 const stringSpacing = stringThickness * 1.75
 const spacerGap = stringThickness / 4
 const rowHeight = stringSpacing * 2 - stringThickness
@@ -18,3 +18,4 @@ const viz = new Viz({
 })
 
 window.addEventListener('load', viz.render)
+window.addEventListener('resize', viz.render)

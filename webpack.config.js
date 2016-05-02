@@ -12,7 +12,7 @@ module.exports = {
   },
   plugins: [
     new webpack.NoErrorsPlugin(),
-    new CopyWebpackPlugin([{ from: './src/style.css'}])
+    // new CopyWebpackPlugin([{ from: './src/style.css'}])
   ],
   module: {
     loaders: [
