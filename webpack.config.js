@@ -3,7 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const __DEV__ = ['production', 'test'].indexOf(process.env.NODE_ENV) === -1
 
-config = {
+const config = {
   devtool: 'source-map',
   entry: ['./src/index'],
   output: {
