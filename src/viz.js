@@ -36,66 +36,88 @@ export default class Viz {
   }
 
   fillRow = (y) => {
-    const { numStrings, margin, stringSpacing, crossingProbability, drawString, drawCrossing, strings } = this
+    const { numStrings, crossingProbability, strings } = this
     const nextStrings = []
 
     let stringNumber = 0
-
     while (stringNumber < numStrings / 2) {
+      const doCrossing = Math.random() < crossingProbability
+      if (doCrossing) {
+        nextStrings[stringNumber] = {
+          cross: strings[stringNumber].cross,
+          color: stringNumber === numStrings / 2 - 1 ?
+            strings[stringNumber].color :
+            strings[stringNumber + 1].color,
+          doCrossing,
+        }
+        nextStrings[stringNumber + 1] = {
+          cross: stringNumber === numStrings / 2 - 1 ?
+            strings[stringNumber].cross :
+            strings[stringNumber + 1].cross,
+          color: strings[stringNumber].color,
+          doCrossing,
+        }
+        stringNumber += 2
+      }
+      else {
+        const string = {
+          ...strings[stringNumber],
+          doCrossing
+        }
+        nextStrings[stringNumber] = string
+        stringNumber += 1
+      }
+    }
+    return nextStrings.slice(0, numStrings / 2)
+  }
+
+  drawRow = (y, strings) => {
+
+    const { margin, stringSpacing, drawString, drawCrossing, numStrings } = this
+    let stringNumber = 0
+    while (stringNumber < strings.length) {
       const x = margin + stringNumber * stringSpacing
-      if (Math.random() < crossingProbability) {
+      if (strings[stringNumber].doCrossing) {
         const positive = strings[stringNumber].cross
         const crossingConfig = {
           x,
           y,
-          color0: strings[stringNumber].color,
-          color1: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].color : strings[stringNumber + 1].color,
+          color0: stringNumber === numStrings / 2 - 1 ?
+            strings[stringNumber].color :
+            strings[stringNumber + 1].color,
+          color1: strings[stringNumber].color,
           positive,
         }
         const partnerCrossingConfig = {
           x: margin + (numStrings - 2 - stringNumber) * stringSpacing,
           y,
-          color0: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].color : strings[stringNumber + 1].color,
-          color1: strings[stringNumber].color,
+          color0: strings[stringNumber].color,
+          color1: stringNumber === numStrings / 2 - 1 ?
+            strings[stringNumber].color :
+            strings[stringNumber + 1].color,
           positive,
         }
         drawCrossing(crossingConfig)
-        nextStrings[stringNumber] = {
-          cross: strings[stringNumber].cross,
-          color: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].color : strings[stringNumber + 1].color,
-        }
-
         drawCrossing(partnerCrossingConfig)
-        nextStrings[stringNumber + 1] = {
-          cross: stringNumber === numStrings / 2 - 1 ? strings[stringNumber].cross : strings[stringNumber + 1].cross,
-          color: strings[stringNumber].color
-        }
-
-        //advance and skip the next string
         stringNumber += 2
       }
       else {
-        drawString({
-          x,
-          y,
-          color: strings[stringNumber].color,
-        })
-        drawString({
+        const stringConfig = { x, y, color: strings[stringNumber].color }
+        const partnerStringConfig = {
           x: margin + (numStrings - 1 - stringNumber) * stringSpacing,
           y,
           color: strings[stringNumber].color,
-        })
-        nextStrings[stringNumber] = strings[stringNumber]
+        }
+        drawString(stringConfig)
+        drawString(partnerStringConfig)
         stringNumber += 1
       }
+      if (stringNumber === numStrings - 1) drawString({
+        x: margin + stringNumber * stringSpacing,
+        y,
+        color: strings[stringNumber].color,
+      })
     }
-
-    if (stringNumber == numStrings - 1) drawString({
-      x: margin + stringNumber * stringSpacing,
-      y,
-      color: strings[stringNumber].color,
-    })
-    return nextStrings
   }
 
   drawSpacer = (config) => {
@@ -190,10 +212,21 @@ export default class Viz {
     const numStrings = (1 + Math.floor((this.displayWidth - this.stringThickness) / this.stringSpacing))
 
     this.numStrings = numStrings % 2 ? numStrings - 1 : numStrings
-    this.strings = this.initialColors(this.numStrings / 2).map((color, i) => { return { color, cross: i % 2 } })
+    this.strings = this.initialColors(this.numStrings / 2).map((color, i) => {
+      return {
+        color,
+        cross: i % 2,
+        doCrossing: false,
+      }
+    })
 
     this.context.clearRect(0, 0, this.displayWidth, this.displayHeight)
     let i = Math.floor(this.displayHeight / this.rowHeight) + 1
-    while (--i > -1) { this.strings = this.fillRow(i * this.rowHeight) }
+    while (--i > -1) {
+      console.log(i)
+      this.strings = this.fillRow()
+      console.log(this.strings)
+      this.drawRow(i * this.rowHeight, this.strings)
+    }
   }
 }
