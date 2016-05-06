@@ -4,6 +4,11 @@ export default class Viz {
     displayCanvas.height = window.innerHeight
     displayCanvas.width = window.innerWidth
 
+    this.scrollDelta = 0
+    this.scrollIndex = 1
+    this.scrollPosition = 0
+    this.currentScrollIndex = 0
+
     this.displayCanvas = displayCanvas
     this.displayWidth = displayCanvas.width
     this.displayHeight = displayCanvas.height
@@ -18,43 +23,86 @@ export default class Viz {
     this.spacerGap = config.spacerGap
     this.controlYFactor = (1 - this.stringSpacing / this.rowHeight * Math.tan(this.crossingAngle))
     this.margin = this.stringThickness + 1
+    this.rows = {}
   }
 
   initialColors = (numStrings) => {
-    let i,r,g,b
     const result = []
-    for (i = 0; i < numStrings; i++) {
+    if (!!window.location.search.match('monochrome')) {
+      for (let i = 0; i < numStrings; i++) {
+        result.push(i % 2 ? '#dcdcdc' : '#191919')
+      }
+      return result
+    }
+    for (let i = 0; i < numStrings; i++) {
+      const r = 64 + Math.floor(Math.random() * 192)
+      const g = 44 + Math.floor(Math.random() * 212)
 
-      r = 64 + Math.floor(Math.random() * 192)
-      g = 44 + Math.floor(Math.random() * 212)
-      b = 192
-      // b = 64 + Math.floor(Math.random() * 192)
-
-      result.push(`rgb(${r},${g},${b})`)
+      result.push(`rgb(${r},${g},192)`)
     }
     return result;
   }
 
-  fillRow = (y) => {
-    const { numStrings, crossingProbability, strings } = this
+  tick = () => {
+    const { rows, context, drawRow, fillRow, columns, tick } = this
+    context.clearRect(0, 0, this.displayWidth, this.displayHeight)
+
+    this.scrollDelta -= 8
+    this.scrollIndex = Math.floor(this.scrollDelta / this.rowHeight)
+    this.scrollPosition = this.scrollDelta % this.rowHeight
+
+    const sliced = []
+    if (this.scrollIndex < 0 && typeof rows[this.scrollIndex - 1] === 'undefined') {
+      for (let i = this.currentScrollIndex; i >= this.scrollIndex - 1; i--) {
+        if (rows[i] === undefined) rows[i] = fillRow(rows[i + 1])
+      }
+    }
+    const index = !this.scrollPosition ? this.scrollIndex - 1 : this.scrollIndex
+    for (let i = index; i < this.scrollIndex + columns + 1; i++) {
+      sliced.push(rows[i])
+    }
+    sliced.forEach(drawRow)
+    this.currentScrollIndex = this.scrollIndex
+
+    this.clock = requestAnimationFrame(tick)
+  }
+
+  initRows = () => {
+    const { columns, initialColors, rows, fillRow } = this
+    let i = columns
+    rows[i] = initialColors(this.numStrings / 2).map((color, i) => {
+      return {
+        color,
+        cross: i % 2,
+        doCrossing: false,
+      }
+    })
+    while (--i > -2) { rows[i] = fillRow(rows[i + 1]) }
+  }
+
+  fillRow = (strings) => {
+    const { numStrings, crossingProbability, scrollIndex } = this
     const nextStrings = []
 
     let stringNumber = 0
     while (stringNumber < numStrings / 2) {
       const doCrossing = Math.random() < crossingProbability
+      const colorA = stringNumber === numStrings / 2 - 1 ?
+          strings[stringNumber].color :
+          strings[stringNumber + 1].color
+      const colorB = strings[stringNumber].color
+
       if (doCrossing) {
         nextStrings[stringNumber] = {
           cross: strings[stringNumber].cross,
-          color: stringNumber === numStrings / 2 - 1 ?
-            strings[stringNumber].color :
-            strings[stringNumber + 1].color,
+          color: colorA,
           doCrossing,
         }
         nextStrings[stringNumber + 1] = {
           cross: stringNumber === numStrings / 2 - 1 ?
             strings[stringNumber].cross :
             strings[stringNumber + 1].cross,
-          color: strings[stringNumber].color,
+          color: colorB,
           doCrossing,
         }
         stringNumber += 2
@@ -71,10 +119,12 @@ export default class Viz {
     return nextStrings.slice(0, numStrings / 2)
   }
 
-  drawRow = (y, strings) => {
-
-    const { margin, stringSpacing, drawString, drawCrossing, numStrings } = this
+  drawRow = (strings, i) => {
+    const { margin, stringSpacing, drawString, drawCrossing, numStrings, rowHeight, scrollPosition, scrollIndex } = this
+    if (strings === undefined) debugger
+    const y = ((i - 1) * rowHeight) - scrollPosition
     let stringNumber = 0
+
     while (stringNumber < strings.length) {
       const x = margin + stringNumber * stringSpacing
       if (strings[stringNumber].doCrossing) {
@@ -168,7 +218,7 @@ export default class Viz {
       cp1X: x,
       cp1Y: y + rowHeight * (1 - controlYFactor),
       endX: x,
-      endY: y + rowHeight,
+      endY: y + 1 + rowHeight,
       color: color0,
     }
 
@@ -180,7 +230,7 @@ export default class Viz {
       cp1X: x + stringSpacing,
       cp1Y: y + rowHeight * (1 - controlYFactor),
       endX: x + stringSpacing,
-      endY: y + rowHeight,
+      endY: y + rowHeight + 1,
       color: color1,
     }
 
@@ -198,35 +248,45 @@ export default class Viz {
     context.lineCap = "butt"
     context.beginPath()
     context.moveTo(x, y)
-    context.lineTo(x, y + rowHeight)
+    context.lineTo(x, y + rowHeight + 1)
     context.stroke()
   }
 
   render = () => {
-    this.displayCanvas.height = window.innerHeight
-    this.displayCanvas.width = window.innerWidth
+    const {
+      displayCanvas,
+      context,
+      stringThickness,
+      stringSpacing,
+      initRows,
+      rows,
+      drawRow,
+      rowHeight,
+      tick,
+    } = this
+
+    if (this.clock) clearAnimationFrame(this.clock)
+
+    displayCanvas.height = window.innerHeight
+    displayCanvas.width = window.innerWidth
+
     this.displayWidth = this.displayCanvas.width
     this.displayHeight = this.displayCanvas.height
 
+    this.columns = Math.floor(this.displayHeight / rowHeight) + 1
 
-    const numStrings = (1 + Math.floor((this.displayWidth - this.stringThickness) / this.stringSpacing))
+    context.clearRect(0, 0, this.displayWidth, this.displayHeight)
+
+    const numStrings = (1 + Math.floor((this.displayWidth - stringThickness) / stringSpacing))
 
     this.numStrings = numStrings % 2 ? numStrings - 1 : numStrings
-    this.strings = this.initialColors(this.numStrings / 2).map((color, i) => {
-      return {
-        color,
-        cross: i % 2,
-        doCrossing: false,
-      }
-    })
+    initRows()
 
-    this.context.clearRect(0, 0, this.displayWidth, this.displayHeight)
-    let i = Math.floor(this.displayHeight / this.rowHeight) + 1
-    while (--i > -1) {
-      console.log(i)
-      this.strings = this.fillRow()
-      console.log(this.strings)
-      this.drawRow(i * this.rowHeight, this.strings)
+    const sliced = []
+    for (let i = this.scrollIndex - 1; i < this.scrollIndex + this.columns; i++) {
+      sliced.push(rows[i])
     }
+    sliced.forEach(drawRow)
+    this.clock = requestAnimationFrame(tick)
   }
 }

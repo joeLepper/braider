@@ -1,6 +1,6 @@
 import Viz from './viz'
 
-const stringThickness = 64
+const stringThickness = 32
 const stringSpacing = stringThickness * 1.75
 const spacerGap = stringThickness / 4
 const rowHeight = stringSpacing * 2 - stringThickness
@@ -17,7 +17,5 @@ const viz = new Viz({
   selector: '.visualization',
 })
 
-window.addEventListener('load', () => {
-  setInterval(() => viz.render(), 120)
-})
+window.addEventListener('load', viz.render)
 window.addEventListener('resize', viz.render)
