@@ -4,10 +4,52 @@
       body {
         background-color: #333;
         overflow: hidden;
+        font-family: helvetica;
+      }
+      .greeting {
+        color: #eee;
+        text-align: center;
+      }
+      .greeting-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        padding: 1em;
+        background-color: rgba(10,10,10,0.3);
+      }
+      .greeting-wrapper {
+        background-color: rgba(10,10,10,0.3);
+        position:absolute;
+        left:0; right:0;
+        top:0; bottom:0;
+        margin:auto;
+        max-width:100%;
+        max-height:100%;
+      }
+      a {
+        text-decoration: none;
+        color: #f09;
+      }
+      a:hover {
+        color: #eee;
+      }
+      span {
+        margin: 0 .5em
       }
     </style>
   </head>
   <body>
+    <div class="greeting-wrapper">
+      <div class="greeting-container">
+        <h1 class="static greeting">Hi.</h1>
+        <h4 class="carousel greeting">I'm Joe.</h2>
+        <div class="greeting">
+          <span><a href="https://github.com/joeLepper/braider">source</a></span>
+          <span><a href="https://github.com/joeLepper">github</a></span>
+        </div>
+      </div>
+    </div>
     <canvas class="visualization"></canvas>
   </body>
   <script src="viz.js"></script>

@@ -12,6 +12,7 @@ const config = {
   },
   plugins: [
     new webpack.NoErrorsPlugin(),
+   new webpack.optimize.UglifyJsPlugin(),
     // new CopyWebpackPlugin([{ from: './src/style.css'}])
   ],
   module: {

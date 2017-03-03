@@ -4,8 +4,13 @@
   "description": "Generative braids.",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node server.js",
-    "deploy": "NODE_ENV=production ./node_modules/.bin/webpack -p && ./node_modules/.bin/surge -p ./dist -d braider.surge.sh"
+    "build": "NODE_ENV=production ./node_modules/.bin/webpack -p ",
+    "start": "node server.js",
+    "deploy": "./node_modules/.bin/surge -p ./dist -d braider.surge.sh",
+    "destroy": "./node_modules/.bin/forever stopall",
+    "predeploy": "npm run build",
+    "preproduction": "npm run build",
+    "production": "PORT=80 forever start server.js"
   },
   "author": "Joe Lepper",
   "license": "MIT",

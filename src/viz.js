@@ -81,7 +81,7 @@ export default class Viz {
   }
 
   fillRow = (strings) => {
-    const { numStrings, crossingProbability, scrollIndex } = this
+    const { numStrings, crossingProbability } = this
     const nextStrings = []
 
     let stringNumber = 0
@@ -120,8 +120,7 @@ export default class Viz {
   }
 
   drawRow = (strings, i) => {
-    const { margin, stringSpacing, drawString, drawCrossing, numStrings, rowHeight, scrollPosition, scrollIndex } = this
-    if (strings === undefined) debugger
+    const { margin, stringSpacing, drawString, drawCrossing, numStrings, rowHeight, scrollPosition } = this
     const y = ((i - 1) * rowHeight) - scrollPosition
     let stringNumber = 0
 
